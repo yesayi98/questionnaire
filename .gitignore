@@ -1,3 +1,5 @@
 /.env
 /vendor/
 /data/
+/var/
+/symfony.lock
