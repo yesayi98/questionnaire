@@ -16,7 +16,14 @@ class QuestionnaireController extends AbstractController
         return $this->render('questionnaire/index.html.twig', []);
     }
 
-    #[Route('/answer', methods: ['POST'], condition: "service('questionnaire_check_answer').check(request)")]
+    #[Route('/start', name: 'questionnaire_start', methods: ['GET'])]
+    public function start():Response {
+        // TODO: Get last questionnaire or create new one
+
+        return $this->render('questionnaire/index.html.twig', []);
+    }
+
+    #[Route('/answer', methods: ['POST'])]
     public function answer(Request $request):Response {
         // TODO: questionnaire answers here
 
