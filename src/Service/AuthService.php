@@ -9,16 +9,27 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AuthService
 {
-    public function __construct(private readonly RequestStack $requestStack, private readonly EntityManagerInterface $entityManager)
+    /**
+     * @param RequestStack $requestStack
+     * @param EntityManagerInterface $entityManager
+     */
+    public function __construct(private RequestStack $requestStack, private EntityManagerInterface $entityManager)
     {
     }
 
+    /**
+     * @return SessionInterface
+     */
     public function getSession(): SessionInterface
     {
         return $this->requestStack->getSession();
     }
 
-    public function getAuthUser() {
+    /**
+     * @return User|null
+     */
+    public function getAuthUser(): ?User
+    {
         $userId = $this->getSession()->get('user_id');
         if (!$userId) {
            return null;

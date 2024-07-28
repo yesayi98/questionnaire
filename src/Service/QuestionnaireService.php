@@ -96,7 +96,6 @@ class QuestionnaireService
     /**
      * @param Questionnaire $questionnaire
      * @return void
-     * @throws \Exception
      */
     public function finishQuestionnaire(Questionnaire $questionnaire): void
     {
@@ -106,6 +105,11 @@ class QuestionnaireService
         $this->entityManager->flush();
     }
 
+    /**
+     * @param Questionnaire $questionnaire
+     * @param array $data
+     * @return void
+     */
     public function answerToQuestion(Questionnaire $questionnaire, array $data): void
     {
         $userQuestionnaire = $this->getUserQuestionnaire($questionnaire);
@@ -131,18 +135,20 @@ class QuestionnaireService
         return $questionRepository->find($id);
     }
 
-    public function getWrongAnswers(Questionnaire $questionnaire)
-    {
-        return [];
-    }
-
+    /**
+     * @param Questionnaire $questionnaire
+     * @return UserQuestionnaire
+     */
     private function getUserFinishedQuestionnaire(Questionnaire $questionnaire): UserQuestionnaire
     {
         $user = $this->authService->getAuthUser();
         return $this->entityManager->getRepository(UserQuestionnaire::class)->getUserLastQuestionnaire($user, $questionnaire, true);
     }
 
-    public function getQuestionnaireResultAggregatedByQuestion(Questionnaire $questionnaire)
+    /**
+     * @return array{right: array, wrong: array}
+     */
+    public function getQuestionnaireResultAggregatedByQuestion(Questionnaire $questionnaire): array
     {
         $rightAnswers = [];
         $wrongAnswers = [];

@@ -18,7 +18,13 @@ class UserQuestionnaireRepository extends ServiceEntityRepository
         parent::__construct($registry, UserQuestionnaire::class);
     }
 
-    public function getUserLastQuestionnaire(User $user, Questionnaire $questionnaire, bool $finished) {
+    /**
+     * @param User $user
+     * @param Questionnaire $questionnaire
+     * @param bool $finished
+     * @return UserQuestionnaire|null
+     */
+    public function getUserLastQuestionnaire(User $user, Questionnaire $questionnaire, bool $finished): ?UserQuestionnaire {
         $qb = $this->createQueryBuilder('u')
             ->leftJoin('u.questionnaire', 'q')
             ->leftJoin('u.userQuestionnaireAnswers', 'uqa')

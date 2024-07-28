@@ -52,6 +52,10 @@ class QuestionnaireController extends BaseController
         ]);
     }
 
+    /**
+     * @param Questionnaire $questionnaire
+     * @return RedirectResponse|Response
+     */
     #[Route('/{questionnaire}/step', name: 'questionnaire_step', methods: ['GET'])]
     public function step(Questionnaire $questionnaire): RedirectResponse|Response
     {
@@ -71,6 +75,11 @@ class QuestionnaireController extends BaseController
         return $this->render('questionnaire/step.html.twig', ['form' => $form->createView()]);
     }
 
+    /**
+     * @param Questionnaire $questionnaire
+     * @param Request $request
+     * @return Response
+     */
     #[Route('/{questionnaire}/answer', name: 'questionnaire_answer', methods: ['POST'])]
     public function answer(Questionnaire $questionnaire, Request $request):Response {
         $questionnaireService = $this->questionnaireService;
@@ -85,6 +94,10 @@ class QuestionnaireController extends BaseController
         return $this->redirectToRoute('questionnaire_step', ['questionnaire' => $questionnaire->getId()]);
     }
 
+    /**
+     * @param Questionnaire $questionnaire
+     * @return Response
+     */
     #[Route('/{questionnaire}/result', name: 'questionnaire_result', methods: ['GET'])]
     public function result(Questionnaire $questionnaire): Response {
         $questionnaireService = $this->questionnaireService;

@@ -10,6 +10,9 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class IndexController extends BaseController
 {
+    /**
+     * @return Response
+     */
     #[Route('/', name: 'homepage', methods: ['GET'])]
     public function index():Response {
         try {
