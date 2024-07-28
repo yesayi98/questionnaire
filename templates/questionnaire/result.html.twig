@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Questionnaire Result{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="my-4">Array Data</h1>
+
+        {% for category, values in data %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h2 class="card-title">{{ category | capitalize }}</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for key, value in values %}
+                            <li class="list-group-item">
+                                {{ value }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+        <a class="btn btn-info" href="{{ path('questionnaire_list') }}">Start another</a>
+    </div>
+{% endblock %}

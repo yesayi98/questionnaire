@@ -4,18 +4,17 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserNameType;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Exception;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-class IndexController extends AbstractController
+class IndexController extends BaseController
 {
     #[Route('/', name: 'homepage', methods: ['GET'])]
-    public function index(SessionInterface $session):Response {
-        if ($session->has('user_id')) {
-            $user = $this->getDoctrine()->getRepository(User::class)->find($session->get('user_id'));
-        } else {
+    public function index():Response {
+        try {
+            $user = $this->getUserFromSession();
+        }catch (Exception $e) {
             $user = new User();
         }
         $form = $this->createForm(UserNameType::class, $user,  [

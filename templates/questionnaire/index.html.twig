@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Questionnaire List{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Available Questionnaires</h1>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for questionnaire in questionnaires %}
+                <tr>
+                    <td>{{ questionnaire.id }}</td>
+                    <td>{{ questionnaire.name }}</td>
+                    <td>
+                        <a href="{{ path('questionnaire_start', { 'questionnaire': questionnaire.id }) }}" class="btn btn-primary">
+                            Select
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

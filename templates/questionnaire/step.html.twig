@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    {{ form_start(form) }}
+                    <div class="card-header">
+                        {{ form_label(form.answers, null, {'label_attr': {'class': 'form-label'}}) }}
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            {% for answer in form.answers %}
+                                <div class="form-check">
+                                    {{ form_widget(answer, {'attr': {'class': 'form-check-input'}}) }}
+                                    {{ form_label(answer, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                </div>
+                            {% endfor %}
+                            {{ form_errors(form.answers) }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Next</button>
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Questionnaire List{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="mt-5">Hello, {{ user.name }}!</h1>
+        <p>Thank you for starting the questionnaire {{ userQuestionnaire.questionnaire.name }}.</p>
+        {# Add more questionnaire content here #}
+        <a href="{{ path('questionnaire_step', { 'questionnaire': userQuestionnaire.questionnaire.id }) }}" class="btn btn-primary">
+            Start Questionnaire
+        </a>
+    </div>
+{% endblock %}

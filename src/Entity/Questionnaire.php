@@ -2,14 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use App\Repository\QuestionnaireRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-class User
+#[ORM\Entity(repositoryClass: QuestionnaireRepository::class)]
+class Questionnaire
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -20,13 +19,20 @@ class User
     private ?string $name = null;
 
     /**
+     * @var Collection<int, Question>
+     */
+    #[ORM\ManyToMany(targetEntity: Question::class)]
+    private Collection $questions;
+
+    /**
      * @var Collection<int, UserQuestionnaire>
      */
-    #[ORM\OneToMany(targetEntity: UserQuestionnaire::class, mappedBy: 'userId')]
+    #[ORM\OneToMany(targetEntity: UserQuestionnaire::class, mappedBy: 'questionnaire')]
     private Collection $userQuestionnaires;
 
     public function __construct()
     {
+        $this->questions = new ArrayCollection();
         $this->userQuestionnaires = new ArrayCollection();
     }
 
@@ -48,6 +54,30 @@ class User
     }
 
     /**
+     * @return Collection<int, Question>
+     */
+    public function getQuestions(): Collection
+    {
+        return $this->questions;
+    }
+
+    public function addQuestion(Question $question): static
+    {
+        if (!$this->questions->contains($question)) {
+            $this->questions->add($question);
+        }
+
+        return $this;
+    }
+
+    public function removeQuestion(Question $question): static
+    {
+        $this->questions->removeElement($question);
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, UserQuestionnaire>
      */
     public function getUserQuestionnaires(): Collection
@@ -59,7 +89,7 @@ class User
     {
         if (!$this->userQuestionnaires->contains($userQuestionnaire)) {
             $this->userQuestionnaires->add($userQuestionnaire);
-            $userQuestionnaire->setUserId($this);
+            $userQuestionnaire->setQuestionnaire($this);
         }
 
         return $this;
@@ -69,8 +99,8 @@ class User
     {
         if ($this->userQuestionnaires->removeElement($userQuestionnaire)) {
             // set the owning side to null (unless already changed)
-            if ($userQuestionnaire->getUserId() === $this) {
-                $userQuestionnaire->setUserId(null);
+            if ($userQuestionnaire->getQuestionnaire() === $this) {
+                $userQuestionnaire->setQuestionnaire(null);
             }
         }
 

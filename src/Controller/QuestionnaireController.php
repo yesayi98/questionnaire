@@ -2,31 +2,98 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Entity\Questionnaire;
+use App\Form\QuestionType;
+use App\Service\AuthService;
+use App\Service\QuestionnaireService;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 #[Route('/questionnaire')]
-class QuestionnaireController extends AbstractController
+class QuestionnaireController extends BaseController
 {
-    #[Route('/', methods: ['GET'])]
+    /**
+     * @param AuthService $authService
+     * @param QuestionnaireService $questionnaireService
+     */
+    public function __construct(AuthService $authService, private readonly QuestionnaireService $questionnaireService)
+    {
+        parent::__construct($authService);
+    }
+
+    #[Route('/', name: 'questionnaire_list', methods: ['GET'])]
     public function index():Response {
-        // TODO: Get last questionnaire or create new one
+        $questionnaireService = $this->questionnaireService;
+        $questionnaires = $questionnaireService->getQuestionnaireList();
 
-        return $this->render('questionnaire/index.html.twig', []);
+        if (!count($questionnaires)) {
+            return $this->redirectToRoute('questionnaire_start');
+        }
+
+        return $this->render('questionnaire/index.html.twig', [
+            'user' => $this->getUserFromSession(),
+            'questionnaires' => $questionnaires,
+        ]);
     }
 
-    #[Route('/start', name: 'questionnaire_start', methods: ['GET'])]
-    public function start():Response {
-        // TODO: Get last questionnaire or create new one
+    #[Route('/{questionnaire?}/start', name: 'questionnaire_start', methods: ['GET'])]
+    public function start(?Questionnaire $questionnaire):Response {
+        $questionnaireService = $this->questionnaireService;
+        if (!$questionnaire) {
+            $userQuestionnaire = $questionnaireService->generateNewQuestionnaire();
+        } else {
+            $userQuestionnaire = $questionnaireService->getUserQuestionnaire($questionnaire);
+        }
 
-        return $this->render('questionnaire/index.html.twig', []);
+        return $this->render('questionnaire/detail.html.twig', [
+            'user' => $this->getUserFromSession(),
+            'userQuestionnaire' => $userQuestionnaire,
+        ]);
     }
 
-    #[Route('/answer', methods: ['POST'])]
-    public function answer(Request $request):Response {
-        // TODO: questionnaire answers here
+    #[Route('/{questionnaire}/step', name: 'questionnaire_step', methods: ['GET'])]
+    public function step(Questionnaire $questionnaire): RedirectResponse|Response
+    {
+        $questionnaireService = $this->questionnaireService;
+        $question = $questionnaireService->getQuestionnaireNextQuestion($questionnaire);
 
-        return $this->redirectToRoute('questionnaire_index');
+        if (!$question) {
+            $this->questionnaireService->finishQuestionnaire($questionnaire);
+            return $this->redirectToRoute('questionnaire_result', ['questionnaire' => $questionnaire->getId()]);
+        }
+
+        $form = $this->createForm(QuestionType::class, null, [
+            'question' => $question,
+            'action' => $this->generateUrl('questionnaire_answer', ['questionnaire' => $questionnaire->getId()]),
+        ]);
+
+        return $this->render('questionnaire/step.html.twig', ['form' => $form->createView()]);
+    }
+
+    #[Route('/{questionnaire}/answer', name: 'questionnaire_answer', methods: ['POST'])]
+    public function answer(Questionnaire $questionnaire, Request $request):Response {
+        $questionnaireService = $this->questionnaireService;
+        $question = $questionnaireService->getQuestionById($request->get('question')['id']);
+        $form = $this->createForm(QuestionType::class, null, ['question' => $question]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $questionnaireService->answerToQuestion($questionnaire, $data);
+        }
+
+        return $this->redirectToRoute('questionnaire_step', ['questionnaire' => $questionnaire->getId()]);
+    }
+
+    #[Route('/{questionnaire}/result', name: 'questionnaire_result', methods: ['GET'])]
+    public function result(Questionnaire $questionnaire): Response {
+        $questionnaireService = $this->questionnaireService;
+
+        $answers = $questionnaireService->getQuestionnaireResultAggregatedByQuestion($questionnaire);
+
+        return $this->render('questionnaire/result.html.twig', [
+            'questionnaire' => $questionnaire,
+            'data' => $answers,
+        ]);
     }
 }
